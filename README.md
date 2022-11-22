@@ -6,7 +6,7 @@
 - **Iduino pulse sensor** *Waste of money. Please don't you dare to bring this crap to my classes trying to do semester project!*
 
 ### What you can measure?
-*Remember, these modules are fine but they aren't certified for medical use. They don't provide enough accuracy to correctly measure P, Q, R, S, T, U intervals even if you can see them. These sensors are mostly used in wearable smart devices. Possibilities of such sensors in healthcare should be investigated.*
+*Remember, these modules are fine but they aren't certified for medical use. They don't provide enough accuracy to correctly measure P, Q, R, S, T intervals even if you can see them. These sensors are mostly used in wearable smart devices. Possibilities of such sensors in healthcare should be investigated.*
 - **BPM: Beats Per Minute.** Measured as R-R interval.
 - **HRV: Heart Rate Variability.** Standard deviation of changes in R-R intervals sequence. High HRV means we are more relaxed, opposite means we are stressed (need to confirm).
 - **PPT: Pulse Transit Time. (?)** Requires two sensors. Measures the time it takes the pulse to transfer the blood. Measures delays between QRS segment of synchronized sensors (need to confirm how it works and whether it's doable with non-medical sensors).
