@@ -26,48 +26,50 @@ int HeartRate::measure(){
 
   measurements[0] = value;
 
-  calculateThreshold();
-
-    // Serial.print("New measure: ");
-    // Serial.print(value);
-    // Serial.print(", Threshold: ");
-    // Serial.print(threshold);
-    // Serial.print(", ");
-    // Serial.print(", Previous value: ");
-    // Serial.print(measurements[1]);
-
-  if( measurements[0] >= threshold &&  measurements[1] < threshold){
-    //Serial.print(", HEARTBEAT");
-    digitalWrite(13, HIGH);
-    // Serial.print(threshold);
-    // Serial.print(", ");
-    // Serial.print(value);
-    // Serial.print(", ");
-    // Serial.println(measurements[1]);
-
-
-    addHeartBeat();
-
-    if(heartBeatsAmount <= HEARTBEATS_BUFFER_SIZE) state = ADJUSTING;
-    else{
-      state = MEASURING;
-      popHeartBeat();
-      calculateHeartbeat();
+  if((measurements[0] >= 800 && measurements[1] < 800) || (measurements[0] <= 300 && measurements[1] > 300)) {
+    clearHeartBeats();
+    if(state == MEASURING || state == ADJUSTING){
+      state = IDLE;
+    }
+    else if(state == IDLE){
+      state = ADJUSTING;
     }
   }
-  else{
-    digitalWrite(13,LOW);
-    
+
+  if(state == ADJUSTING || state == MEASURING){
+    calculateThreshold();
+
+    if(measurements[0] < thresholdLow) isPeak = false;
+
+    if( measurements[0] >= thresholdHigh &&  measurements[1] < thresholdHigh && !isPeak){
+      digitalWrite(13, HIGH);
+
+      addHeartBeat();
+      isPeak = true;
+
+      if(heartBeatsAmount <= HEARTBEATS_BUFFER_SIZE) state = ADJUSTING;
+      else{
+        state = MEASURING;
+        popHeartBeat();
+        heartRate = calculateHeartbeat();
+      }
+    }
+    else{
+      digitalWrite(13,LOW);
+    }
   }
-  //Serial.println();
 
   return value;
 }
 
 void HeartRate::calculateThreshold(){
-  threshold = ampMax - ampMin;
-  threshold *= 0.80;
-  threshold += ampMin;
+  thresholdHigh = ampMax - ampMin;
+  thresholdHigh *= 0.80;
+  thresholdHigh += ampMin;
+
+  thresholdLow = ampMax - ampMin;
+  thresholdLow *= 0.50;
+  thresholdLow += ampMin;
 }
 
 void HeartRate::addHeartBeat(){
@@ -94,13 +96,22 @@ void HeartRate::popHeartBeat(){
   delete toRemove;
   heartBeatsTail = temp;
   heartBeatsTail->next = nullptr;
-  
-  // if(heartBeatsTail->prev) heartBeatsTail = heartBeatsTail->prev;
-
-  // delete toRemove;
 }
 
-void HeartRate::calculateHeartbeat(){
+void HeartRate::clearHeartBeats(){
+    HeartBeat* current = heartBeats;
+
+    while(current){
+       HeartBeat* temp = current->next;
+       delete current;
+       current = current->next;
+    }
+
+    heartBeats = nullptr;
+    heartBeatsAmount = 0;
+}
+
+int HeartRate::calculateHeartbeat(){
   HeartBeat* current = heartBeats;
 
   unsigned long total = 0;
@@ -110,10 +121,5 @@ void HeartRate::calculateHeartbeat(){
     current = current->next;
   }
 
-  heartRate = total / heartBeatsAmount;
-  Serial.print(heartRate);
-  Serial.print('\t');
-  heartRate = 60000 / heartRate;
-   Serial.println(heartRate);
-
+  return 60000 / (total / heartBeatsAmount);
 }

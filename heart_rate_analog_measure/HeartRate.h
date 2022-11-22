@@ -7,7 +7,6 @@
 struct HeartBeat {
   unsigned long timestamp;
   unsigned long interval;
-  int id;
   HeartBeat* next = nullptr;
   HeartBeat* prev = nullptr;
   HeartBeat(unsigned long prev);
@@ -25,10 +24,11 @@ public:
   HeartBeat* heartBeats = nullptr;
   HeartBeat* heartBeatsTail = nullptr;
   int measurements[MEASUREMENTS_BUFFER_SIZE];
-  float threshold = 0;
+  float thresholdHigh = 0;
+  float thresholdLow = 0;
+  bool isPeak = false;
   int ampMin = 0;
   int ampMax = 0;
-  int maxHeartBeats = HEARTBEATS_BUFFER_SIZE;
   int heartBeatsAmount = 0;
   int state = IDLE;
   short pin;
@@ -37,6 +37,7 @@ public:
   int measure();
   void addHeartBeat();
   void popHeartBeat();
+  void clearHeartBeats();
   void calculateThreshold();
-  void calculateHeartbeat(); 
+  int calculateHeartbeat(); 
 };
