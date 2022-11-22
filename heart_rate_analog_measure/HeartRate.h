@@ -4,9 +4,13 @@
 #define MEASUREMENTS_BUFFER_SIZE 50
 #define HEARTBEATS_BUFFER_SIZE 10
 
-struct Heartbeat {
+struct HeartBeat {
   unsigned long timestamp;
+  unsigned long interval;
   int id;
+  HeartBeat* next = nullptr;
+  HeartBeat* prev = nullptr;
+  HeartBeat(unsigned long prev);
 };
 
 enum{
@@ -17,18 +21,22 @@ enum{
 
 class HeartRate{
 public:
-  int heartRate;
-  Heartbeat* heartBeats;
+  unsigned long heartRate;
+  HeartBeat* heartBeats = nullptr;
+  HeartBeat* heartBeatsTail = nullptr;
   int measurements[MEASUREMENTS_BUFFER_SIZE];
-  int threshold;
-  int ampMin;
-  int ampMax;
-  int maxMeasurements;
-  int state;
-  HeartRate();
+  float threshold = 0;
+  int ampMin = 0;
+  int ampMax = 0;
+  int maxHeartBeats = HEARTBEATS_BUFFER_SIZE;
+  int heartBeatsAmount = 0;
+  int state = IDLE;
+  short pin;
+  HeartRate(short pin);
+  ~HeartRate();
   int measure();
   void addHeartBeat();
   void popHeartBeat();
-  int calculateThreshold();
-  int calculateHeartbeat(); 
+  void calculateThreshold();
+  void calculateHeartbeat(); 
 };
