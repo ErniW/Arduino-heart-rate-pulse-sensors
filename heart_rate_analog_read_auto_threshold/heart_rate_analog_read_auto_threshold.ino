@@ -21,11 +21,10 @@ void loop() {
   Serial.print(threshold);
   Serial.print(',');
   Serial.print(highest);
-   Serial.print(',');
+  Serial.print(',');
   Serial.print(lowest);
-   Serial.print(',');
-    Serial.println(value);
-
+  Serial.print(',');
+  Serial.println(value);
 }
 
 

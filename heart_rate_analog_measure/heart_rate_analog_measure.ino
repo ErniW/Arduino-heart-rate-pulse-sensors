@@ -17,11 +17,13 @@ void loop(){
       break;
     case ADJUSTING:
       Serial.print("ADJUSTING, Pulses detected: ");
-      Serial.println(heartRate->heartBeatsAmount);
+      Serial.println(heartRate->heartBeats->size);
       break;
     case MEASURING:
       Serial.print("MEASURING ");
-      Serial.println(heartRate->heartRate);
+      //Serial.print(heartRate->HRV);
+      //Serial.print(", ");
+      Serial.println(heartRate->BPM);
   }
-  
+
 }

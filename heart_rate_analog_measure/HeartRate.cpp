@@ -8,6 +8,11 @@ HeartBeat::HeartBeat(unsigned long prev){
 
 HeartRate::HeartRate(short pin){
   this->pin = pin;
+  this->heartBeats = new HeartBeats();
+}
+
+HeartRate::~HeartRate(){
+  delete heartBeats;
 }
 
 int HeartRate::measure(){
@@ -21,13 +26,12 @@ int HeartRate::measure(){
 
     if(measurements[i+1] < ampMin) ampMin = measurements[i+1];
     if(measurements[i+1] > ampMax) ampMax = measurements[i+1];
-
   }
 
   measurements[0] = value;
 
   if((measurements[0] >= 800 && measurements[1] < 800) || (measurements[0] <= 300 && measurements[1] > 300)) {
-    clearHeartBeats();
+    heartBeats->clear();
     if(state == MEASURING || state == ADJUSTING){
       state = IDLE;
     }
@@ -44,14 +48,15 @@ int HeartRate::measure(){
     if( measurements[0] >= thresholdHigh &&  measurements[1] < thresholdHigh && !isPeak){
       digitalWrite(13, HIGH);
 
-      addHeartBeat();
+      heartBeats->push();
       isPeak = true;
 
-      if(heartBeatsAmount <= HEARTBEATS_BUFFER_SIZE) state = ADJUSTING;
+      if(heartBeats->size <= HEARTBEATS_BUFFER_SIZE) state = ADJUSTING;
       else{
         state = MEASURING;
-        popHeartBeat();
-        heartRate = calculateHeartbeat();
+        heartBeats->pop();
+        BPM = calculateHeartbeat();
+        HRV = calculateHRV();
       }
     }
     else{
@@ -72,47 +77,8 @@ void HeartRate::calculateThreshold(){
   thresholdLow += ampMin;
 }
 
-void HeartRate::addHeartBeat(){
-  heartBeatsAmount++;
-
-  if(!heartBeats){
-    heartBeats = new HeartBeat(0);
-    heartBeatsTail = heartBeats;
-    return;
-  }
-
-  HeartBeat* temp = new HeartBeat(heartBeats->timestamp);
-  temp->next = heartBeats;
-  heartBeats->prev = temp;
-  heartBeats = temp;
-}
-
-void HeartRate::popHeartBeat(){
-  heartBeatsAmount--;
-
-  HeartBeat* toRemove = heartBeatsTail;
-  HeartBeat* temp = heartBeatsTail->prev;
-
-  delete toRemove;
-  heartBeatsTail = temp;
-  heartBeatsTail->next = nullptr;
-}
-
-void HeartRate::clearHeartBeats(){
-    HeartBeat* current = heartBeats;
-
-    while(current){
-       HeartBeat* temp = current->next;
-       delete current;
-       current = current->next;
-    }
-
-    heartBeats = nullptr;
-    heartBeatsAmount = 0;
-}
-
 int HeartRate::calculateHeartbeat(){
-  HeartBeat* current = heartBeats;
+  HeartBeat* current = heartBeats->head;
 
   unsigned long total = 0;
 
@@ -121,5 +87,21 @@ int HeartRate::calculateHeartbeat(){
     current = current->next;
   }
 
-  return 60000 / (total / heartBeatsAmount);
+  return 60000 / (total / heartBeats->size);
+}
+
+int HeartRate::calculateHRV(){
+  HeartBeat* current = heartBeats->head;
+
+  unsigned long min = current->interval;
+  unsigned long max = current->interval;
+
+  while(current){
+    if(current->interval < min) min = current->interval;
+    if(current->interval > max) max = current->interval;
+
+    current = current->next;
+  }
+
+  return max - min;
 }
