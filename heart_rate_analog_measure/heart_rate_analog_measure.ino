@@ -2,14 +2,21 @@
 
 HeartRate* heartRate = new HeartRate(A0);
 
+#define MEASUREMENT_INTERVAL 20
+
 void setup() {
   Serial.begin(9600);
   pinMode(13, OUTPUT);
 }
 
+unsigned long prevTime = 0;
+
 void loop(){
-  int value = heartRate->measure();
-  delay(20);
+  unsigned long time = millis();
+  if(time - prevTime > MEASUREMENT_INTERVAL){
+    int value = heartRate->measure();
+    prevTime = time;
+  }
 
   switch(heartRate->state){
     case IDLE:

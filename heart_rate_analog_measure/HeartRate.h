@@ -3,7 +3,7 @@
 #include "HeartBeats.h"
 
 #define MEASUREMENTS_BUFFER_SIZE 50
-#define HEARTBEATS_BUFFER_SIZE 10
+//#define HEARTBEATS_BUFFER_SIZE 10
 
 enum{
   IDLE,
@@ -29,6 +29,7 @@ private:
   int ampMax = 0;
   short pin;
   bool isPeak = false;
+  float average = 0;
   void calculateThreshold();
   int calculateHeartbeat(); 
   int calculateHRV();

@@ -22,6 +22,8 @@ void HeartBeats::push(){
 }
 
 void HeartBeats::pop(){
+  if(!tail) return;
+
   size--;
 
   HeartBeat* toRemove = tail;
@@ -43,4 +45,8 @@ void HeartBeats::clear(){
 
   head = nullptr;
   size = 0;
+}
+
+bool HeartBeats::isFull(){
+  return (size > HEARTBEATS_BUFFER_SIZE);
 }

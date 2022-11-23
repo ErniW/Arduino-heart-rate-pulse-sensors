@@ -1,5 +1,7 @@
 #pragma once
 
+#define HEARTBEATS_BUFFER_SIZE 10
+
 struct HeartBeat {
   unsigned long timestamp;
   unsigned long interval;
@@ -18,4 +20,5 @@ public:
   void push();
   void pop();
   void clear();
+  bool isFull();
 };

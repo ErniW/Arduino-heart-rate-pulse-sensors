@@ -2,7 +2,7 @@
 **A comparison of pulse sensors for Arduino.**
 - **Pulse sensor from https://pulsesensor.com/** *Unfortunately the older version, I bought it a long time ago and I don't know if mine is the original or cheap clone, probably there are differences not only in price. Main drawback is its sensitivity to finger movement.*
 - **DFRobot heart rate sensor (SON1303)** *Can provide digital and analog signal.*
-- **MH-ET Live Pulse sensor (MAX30102)** *Communicates via I2C, can provide heart rate and pulse oximetry.*
+- **MH-ET Live Pulse sensor (MAX30102)** *Communicates via I2C, can provide heart rate and pulse oximetry. Someone didn't thought about not putting all passive electronics and pin holes close to sensor so you won't touch all that things if you have large finger. Measurments through Sparkfun library looks inconsistent.*
 - **Iduino pulse sensor** *Waste of money. Please don't you dare to bring this crap to my classes trying to do semester project!*
 
 ### What you can measure?
@@ -14,3 +14,7 @@
 ### Example code:
 - **heart_rate_analog_read_auto_threshold:** quick and dirty way to see the pulse curve in serial plotter and basic usage of time-series data to calibrate pulse threshold.
 - **heart_rate_analog_measure:** simple custom implementation of heart beat rate from analog input. *Without interrupts. Uses queue data structure and state machine design pattern. Requires proper timing depending on your needs (and frequency of microcontroller).*
+- **DFRobot_heart_rate_sensor:** using DFRobot library. *For analog mode heart_rate_analog_measure is fine.*
+- For **MAX30102** I've been working with Sparkfun library, however the variation between measurements looks high.
+
+*TODO: During our classes we had difficulties connecting 4 sensors at once, the results were overlaping, however it was probably because of incorrectly using memory allocation for Arduino UNO.*

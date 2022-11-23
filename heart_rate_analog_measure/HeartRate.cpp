@@ -51,13 +51,16 @@ int HeartRate::measure(){
       heartBeats->push();
       isPeak = true;
 
-      if(heartBeats->size <= HEARTBEATS_BUFFER_SIZE) state = ADJUSTING;
-      else{
+      if(heartBeats->isFull()){
         state = MEASURING;
         heartBeats->pop();
         BPM = calculateHeartbeat();
-        HRV = calculateHRV();
+        HRV = calculateHRV();        
       }
+      else{
+        state = ADJUSTING;
+      }
+
     }
     else{
       digitalWrite(13,LOW);
@@ -80,28 +83,30 @@ void HeartRate::calculateThreshold(){
 int HeartRate::calculateHeartbeat(){
   HeartBeat* current = heartBeats->head;
 
-  unsigned long total = 0;
+  average = 0;
 
   while(current){
-    total += current->interval;
+    average += current->interval;
     current = current->next;
   }
 
-  return 60000 / (total / heartBeats->size);
+  average = average / heartBeats->size;
+
+  return 60000 / average;
 }
 
 int HeartRate::calculateHRV(){
   HeartBeat* current = heartBeats->head;
 
-  unsigned long min = current->interval;
-  unsigned long max = current->interval;
+  unsigned long variance = 0;
 
   while(current){
-    if(current->interval < min) min = current->interval;
-    if(current->interval > max) max = current->interval;
+    variance += pow((current->interval - average), 2);
 
     current = current->next;
   }
 
-  return max - min;
+  variance /= heartBeats->size;
+
+  return sqrt(variance);
 }
